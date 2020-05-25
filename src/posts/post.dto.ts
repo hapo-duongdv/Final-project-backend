@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString, IsInt } from "class-validator";
+import { UserRO } from "src/users/user.dto";
 
 export class PostDTO {
 
@@ -27,4 +28,5 @@ export class PostRO {
     status: string;
     cost: string;
     category: string;
+    author: UserRO;
 }

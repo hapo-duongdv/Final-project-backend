@@ -22,33 +22,33 @@ export class PostsController {
     }
 
     @Get()
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("user", "admin")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user")
     showAll() {
         return this.postsService.showAll();
     }
 
     @Post('/create')
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("admin","user")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user")
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
-    create( @Body() data: PostDTO) {
-        this.logData({ data });
-        return this.postsService.create(data);
+    create( @Body() data: PostDTO, @User('id') user) {
+        this.logData({ data, user });
+        return this.postsService.create(data, user);
     }
 
     @Get(':id')
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("admin", "user")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user")
     read(@Param('id') id: string) {
         return this.postsService.read(id)
     }
 
 
     @Put(':id')
-    // @UseGuards(AuthGuard,RolesGuard )
-    // @Roles("admin", "user")
+    @UseGuards(AuthGuard,RolesGuard )
+    @Roles("user")
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
     update(@Param('id') id: string ,@Body() data: Partial<PostDTO>) {
@@ -57,8 +57,8 @@ export class PostsController {
     }
 
     @Delete(':id')
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("admin", "user")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user")
     delete(@Param('id') id: string) {
         this.logData({ id });
         return this.postsService.delete(id);

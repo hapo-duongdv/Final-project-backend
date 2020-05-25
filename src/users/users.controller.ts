@@ -21,7 +21,7 @@ export class UsersController {
 
     @Get()
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("admin")
+    @Roles("user")
     showAllUsers() {
         return this.usersService.showAll();
     }
@@ -38,7 +38,7 @@ export class UsersController {
 
     @Get(':id')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("admin")
+    @Roles("user")
     readUser(@Param('id') id: string) {
         return this.usersService.read(id)
     }
@@ -48,7 +48,7 @@ export class UsersController {
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("admin")
+    @Roles("user")
     updateUser(@Param('id') id: string , @Body() data: Partial<UserDTO>) {
         return this.usersService.update(id ,data)
     }

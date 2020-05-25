@@ -35,12 +35,12 @@ export class UsersService {
     }
 
     async showAll(): Promise<UserRO[]>{
-        const users = await this.userRepository.find();
+        const users = await this.userRepository.find({relations : ['posts']});
         return users.map(user => user.toResponseObject(false))
     }
 
     async read(id: string): Promise<UserRO> {
-        const user = await this.userRepository.findOne({ where: { id }});
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts']});
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -48,7 +48,7 @@ export class UsersService {
     }
 
     async update(id: string, data: Partial<UserDTO>) {
-        const user = await this.userRepository.findOne({ where: { id }});
+        const user = await this.userRepository.findOne({ where: { id }, relations:['posts']});
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -56,7 +56,7 @@ export class UsersService {
     }
 
     async delete(id: string) {
-        const user = await this.userRepository.findOne({ where: { id }});
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts']});
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }

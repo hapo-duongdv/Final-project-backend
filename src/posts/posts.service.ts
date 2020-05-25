@@ -33,22 +33,22 @@ export class PostsService {
     async showAll() {
         // const tasks =  await this.taskRepository.find({relations: ['author']});
         // return tasks.map(task => this.toResponseObjectTask(task));
-        const posts = await this.postRepository.find();
+        const posts = await this.postRepository.find({relations :['author']});
         return posts;
     }
 
-    async create( data: PostDTO): Promise<PostRO> {
-        // const user = await this.userRepository.findOne({ where: { id: userId } });
-        // if (!user) {
-        //     throw new HttpException('user not found!', HttpStatus.NOT_FOUND);
-        // }
-        const posts = await this.postRepository.create({ ...data});
+    async create( data: PostDTO, userId: string): Promise<PostRO> {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new HttpException('user not found!', HttpStatus.NOT_FOUND);
+        }
+        const posts = await this.postRepository.create({ ...data, author: user});
         await this.postRepository.save(posts);
         return this.toResponseObjectTask(posts);
     }
 
     async read(id: string): Promise<PostRO> {
-        const post = await this.postRepository.findOne({ where: { id } });
+        const post = await this.postRepository.findOne({ where: { id }, relations: ['author'] });
         if (!post) {
             throw new HttpException('Post not found!', HttpStatus.NOT_FOUND);
         }
@@ -56,17 +56,17 @@ export class PostsService {
     }
 
     async update(id: string, data: Partial<PostDTO>): Promise<PostRO> {
-        let post = await this.postRepository.findOne({ where: { id }})
+        let post = await this.postRepository.findOne({ where: { id }, relations: ['author']})
         if (!post) {
             throw new HttpException('post not found!', HttpStatus.NOT_FOUND);
         }
         await this.postRepository.update({ id }, data);
-        post = await this.postRepository.findOne({ where: { id }});
+        post = await this.postRepository.findOne({ where: { id }, relations: ['author']});
         return this.toResponseObjectTask(post);
     }
 
     async delete(id: string) {
-        const post = await this.postRepository.findOne({ where: { id }});
+        const post = await this.postRepository.findOne({ where: { id }, relations: ['author']});
         if (!post) {
             throw new HttpException('post not found!', HttpStatus.NOT_FOUND);
         }
