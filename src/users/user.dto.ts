@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString,  } from "class-validator";
+import { IsNotEmpty, IsString, IsArray,  } from "class-validator";
+import { UserEntity } from "./user.entity";
 
 export class UserDTO {
 
@@ -22,6 +23,9 @@ export class UserDTO {
 
     @IsString()
     roles : string;
+
+    @IsString()
+    listFollow: string
 }
 
 export class UserRO {
@@ -32,4 +36,5 @@ export class UserRO {
     email: string;
     phone: string;
     roles :string;
+    listFollow: string
 }

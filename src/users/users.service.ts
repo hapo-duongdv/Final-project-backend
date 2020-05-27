@@ -129,4 +129,40 @@ export class UsersService {
          });
         return this.userRepository.update({ id }, data);
     }
+
+    async follow(following : string, follower : UserRO) : Promise<UserRO>  {
+        const user = await this.userRepository.findOne({where :{id : following}})
+        console.log("following :", user)
+        if(!user){
+            throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        }
+        
+        await this.userRepository.create({...follower, listFollow: user.email})
+        await this.userRepository.save({...follower, listFollow: user.email})
+        // await user.listFollow.push(followers.email);
+        return {...follower, listFollow: user.email};
+    }
+
+    async unfollow(following : string, follower ) {
+        // const user = await this.userRepository.findOne({where :{email : following}})
+        // if(!user){
+        //     throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        // }
+        // const followers = await this.userRepository.findOne({where :{id : follower}})
+        // if(!followers){
+        //     throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        // }
+        // await user.listFollow.splice(parseInt(followers.id));
+        // return user;
+    }
+
+    public async setAvatar(userId: string, avatarUrl: string){
+        const user : any = await this.userRepository.findOne({ where: { id: userId }, relations:['posts', 'avatar']});
+        if (!user) {
+            throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
+        }
+        await this.userRepository.create( {...user, avatar: avatarUrl});
+        await this.userRepository.save( {...user, avatar: avatarUrl});
+        return {...user, avatar: avatarUrl};
+    }
 }

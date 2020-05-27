@@ -33,16 +33,19 @@ export class PostsService {
     async showAll() {
         // const tasks =  await this.taskRepository.find({relations: ['author']});
         // return tasks.map(task => this.toResponseObjectTask(task));
-        const posts = await this.postRepository.find({relations :['author']});
+        const posts = await this.postRepository.find({ relations: ['author'] });
         return posts;
     }
 
-    async create( data: PostDTO, userId: string): Promise<PostRO> {
+    async create(data: PostDTO, userId: string): Promise<PostRO> {
+        const { imgUrl } = data;
+        const image = imgUrl;
+        console.log(image)
         const user = await this.userRepository.findOne({ where: { id: userId } });
         if (!user) {
             throw new HttpException('user not found!', HttpStatus.NOT_FOUND);
         }
-        const posts = await this.postRepository.create({ ...data, author: user});
+        const posts = await this.postRepository.create({ ...data, imgUrl: image, author: user });
         await this.postRepository.save(posts);
         return this.toResponseObjectTask(posts);
     }
@@ -56,17 +59,17 @@ export class PostsService {
     }
 
     async update(id: string, data: Partial<PostDTO>): Promise<PostRO> {
-        let post = await this.postRepository.findOne({ where: { id }, relations: ['author']})
+        let post = await this.postRepository.findOne({ where: { id }, relations: ['author'] })
         if (!post) {
             throw new HttpException('post not found!', HttpStatus.NOT_FOUND);
         }
         await this.postRepository.update({ id }, data);
-        post = await this.postRepository.findOne({ where: { id }, relations: ['author']});
+        post = await this.postRepository.findOne({ where: { id }, relations: ['author'] });
         return this.toResponseObjectTask(post);
     }
 
     async delete(id: string) {
-        const post = await this.postRepository.findOne({ where: { id }, relations: ['author']});
+        const post = await this.postRepository.findOne({ where: { id }, relations: ['author'] });
         if (!post) {
             throw new HttpException('post not found!', HttpStatus.NOT_FOUND);
         }

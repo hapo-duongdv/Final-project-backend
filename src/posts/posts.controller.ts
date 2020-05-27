@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, HttpException, HttpStatus, Body, Get, UseGuards, ValidationPipe, Post, UseFilters, Put, Logger, UsePipes } from '@nestjs/common';
+import { Controller, Delete, Param, HttpException, HttpStatus, Body, Get, UseGuards, ValidationPipe, Post, UseFilters, Put, Logger, UsePipes, UseInterceptors, Res, UploadedFile } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { ValidationExceptionFilter } from 'src/filters/validation-exception.filter';
 import { User } from 'src/users/user.decorator';
@@ -7,6 +7,9 @@ import { RolesGuard } from 'src/guards/roles.guard';
 import { UserDTO } from 'src/users/user.dto';
 import { PostsService } from './posts.service';
 import { PostDTO } from './post.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
 
 @Controller('posts')
 export class PostsController {
@@ -62,5 +65,28 @@ export class PostsController {
     delete(@Param('id') id: string) {
         this.logData({ id });
         return this.postsService.delete(id);
+    }
+
+    @Post()
+    @UseInterceptors(FileInterceptor('image',
+        {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
+                    return cb(null, `${randomName}${extname(file.originalname)}`)
+                }
+            })
+        }))
+    uploadFile(@UploadedFile() file) {
+        console.log(file);
+        return file;
+    }
+
+    @Get('/image/:imgPath')
+    seeUploadedFile(@Param('imgPath') image, @Res() res) {
+        return res.sendFile(
+            image, { root: 'uploads' }
+        )
     }
 }

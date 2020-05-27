@@ -33,8 +33,25 @@ export class UserEntity {
     @Column({type :'text', nullable: true})
     phone: string;
 
+    @Column({type :'text', default: null})
+    listFollow: string;
+
     @OneToMany(type => PostEntity, post => post.author)
     posts : PostEntity[];
+
+    @OneToMany(type => UserEntity, listFollower => listFollower.followers)
+    listFollowers : UserEntity[];
+
+    @ManyToOne(type => UserEntity, listFollow => listFollow.followers)
+    followers : UserEntity;
+
+    @OneToOne(type => UserEntity, avatar => avatar.user)
+    @JoinColumn()
+    avatar : UserEntity;
+
+    @OneToOne(type => UserEntity, user => user.avatar)
+    @JoinColumn()
+    user: UserEntity;
 
     @BeforeInsert()
     async hashPassword() {
@@ -42,8 +59,8 @@ export class UserEntity {
     }
 
     public toResponseObject(showToken: boolean = true) {
-        const { id, created_at, name, username, token, roles, address, email, phone } = this;
-        const responseObject : any = { id, created_at, name,  username, address, roles , email, phone, token };
+        const { id, created_at, name, username, token, roles, address, email, phone, listFollow } = this;
+        const responseObject : any = { id, created_at, name,  username, address, roles , email, phone, token, listFollow };
         if(showToken){
             responseObject.token = token;
         }

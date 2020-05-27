@@ -17,6 +17,9 @@ export class PostDTO {
 
     @IsNotEmpty()
     cost : string;
+
+    @IsNotEmpty()
+    imgUrl : string;
 }
 
 export class PostRO {
@@ -26,6 +29,7 @@ export class PostRO {
     title: string;
     description: string;
     status: string;
+    imgUrl : string;
     cost: string;
     category: string;
     author: UserRO;

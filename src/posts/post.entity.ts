@@ -28,6 +28,9 @@ export class PostEntity {
     @Column('text')
     category: string;
 
+    @Column('text')
+    imgUrl: string;
+
     @ManyToOne(type => UserEntity, author => author.posts)
     author: UserEntity;
 }
