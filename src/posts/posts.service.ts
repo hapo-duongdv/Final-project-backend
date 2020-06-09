@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from 'src/users/user.entity';
 import { PostEntity } from './post.entity';
 import { PostDTO, PostRO } from './post.dto';
+import { UserRO, UserDTO } from 'src/users/user.dto';
 
 @Injectable()
 export class PostsService {
@@ -40,7 +41,6 @@ export class PostsService {
     async create(data: PostDTO, userId: string): Promise<PostRO> {
         const { imgUrl } = data;
         const image = imgUrl;
-        console.log(image)
         const user = await this.userRepository.findOne({ where: { id: userId } });
         if (!user) {
             throw new HttpException('user not found!', HttpStatus.NOT_FOUND);
@@ -75,5 +75,17 @@ export class PostsService {
         }
         await this.postRepository.delete({ id });
         return this.toResponseObjectTask(post);
+    }
+
+    
+    async follower(id : string, user: UserRO){
+        const post = await this.postRepository.findOne({where :{id : id}})
+        // console.log(id)
+        if(!post){
+            throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        }
+        await this.postRepository.create({...post, followers: user });
+        await this.postRepository.save({...post, followers: user })
+        return {...post, followers: user};
     }
 }

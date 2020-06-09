@@ -10,6 +10,7 @@ import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { PostRO } from 'src/posts/post.dto';
 
 
 @Controller('users')
@@ -27,14 +28,12 @@ export class UsersController {
 
     @Get()
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     showAllUsers() {
         return this.usersService.showAll();
     }
 
     @Post('/create')
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("admin", "user")
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
     createUser(@Body() data: UserDTO) {
@@ -44,7 +43,7 @@ export class UsersController {
 
     @Get(':id')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     readUser(@Param('id') id: string) {
         return this.usersService.read(id)
     }
@@ -54,14 +53,14 @@ export class UsersController {
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     updateUser(@Param('id') id: string, @Body() data: Partial<UserDTO>) {
         return this.usersService.update(id, data)
     }
 
     @Delete(':id')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("admin")
+    @Roles("user", "admin")
     deleteUser(@Param('id') id: string) {
         return this.usersService.delete(id)
     }
@@ -79,7 +78,7 @@ export class UsersController {
         return this.usersService.getInfor(token);
     }
 
-    @Get(':query')
+    @Get('/search/:query')
     @UseGuards(AuthGuard)
     search(@Param('query') query: string) {
         return this.usersService.search(query);
@@ -99,11 +98,19 @@ export class UsersController {
     }
 
     @Post('/follow/:id')
-    // @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard)
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
-    follow(@Param('id') id: string, @Body() data: UserRO) {
+    follow(@Param('id') id: string, @Body() data: Partial<UserRO>) {
         return this.usersService.follow(id, data);
+    }
+
+    @Post('/follow-post/:id')
+    @UseGuards(AuthGuard)
+    @UseFilters(ValidationExceptionFilter)
+    @UsePipes(ValidationPipe)
+    followPost(@Param('id') id: string, @Body() data: Partial<PostRO>) {
+        return this.usersService.followPost(id, data);
     }
 
     @Post('/:id/unfollow')
@@ -114,25 +121,24 @@ export class UsersController {
 
     @Post()
     @UseInterceptors(FileInterceptor('image',
-        // {
-        //     storage: diskStorage({
-        //         destination: './uploads',
-        //         // filename: (req, file, cb) => {
-        //         //     const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
-        //         //     return cb(null, `${randomName}${extname(file.originalname)}`)
-        //         // }
-        //     })
-        // }))
-    ))
+        {
+            storage: diskStorage({
+                destination: './avatar',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
+                    return cb(null, `${randomName}${extname(file.originalname)}`)
+                }
+            })
+        }))
     uploadFile(@UploadedFile() file) {
-        console.log(file)
-        return 'success'
+        console.log(file);
+        return file;
     }
 
     @Get('/image/:imgPath')
     seeUploadedFile(@Param('imgPath') image, @Res() res) {
         return res.sendFile(
-            image, { root: 'uploads' }
+            image, { root: 'avatar' }
         )
     }
 }

@@ -15,6 +15,9 @@ export class PostDTO {
     @IsString()
     category : string;
 
+    @IsString()
+    address : string;
+
     @IsNotEmpty()
     cost : string;
 
@@ -29,6 +32,7 @@ export class PostRO {
     title: string;
     description: string;
     status: string;
+    address: string;
     imgUrl : string;
     cost: string;
     category: string;

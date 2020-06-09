@@ -6,11 +6,13 @@ import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { MulterModule } from '@nestjs/platform-express';
 // import { AppGateway } from './app.gateway';
+import { FollowersController } from './followers/followers.controller';
+import { FollowersModule } from './followers/followers.module';
 
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), UsersModule, PostsModule, MulterModule.register({ dest: './uploads' })],
-  controllers: [AppController],
+  imports: [TypeOrmModule.forRoot(), UsersModule, PostsModule, MulterModule.register({ dest: './uploads' }), FollowersModule],
+  controllers: [AppController, FollowersController],
   providers: [AppService],
 })
 export class AppModule {}

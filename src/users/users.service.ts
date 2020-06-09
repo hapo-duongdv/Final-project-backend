@@ -1,10 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
-import { Repository, Any } from 'typeorm';
+import { Repository, Any, Like } from 'typeorm';
 import { UserDTO, UserRO } from './user.dto';
 import * as jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer';
+import { PostRO } from 'src/posts/post.dto';
 
 @Injectable()
 export class UsersService {
@@ -34,13 +35,13 @@ export class UsersService {
         return this.userRepository.findOne({ where: { token } })
     }
 
-    async showAll(): Promise<UserRO[]>{
-        const users = await this.userRepository.find({relations : ['posts']});
+    async showAll(): Promise<UserRO[]> {
+        const users = await this.userRepository.find({ relations: ['posts', 'listFollowers', 'followers', 'followPosts'] });
         return users.map(user => user.toResponseObject(false))
     }
 
     async read(id: string): Promise<UserRO> {
-        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts']});
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'listFollowers', 'followPosts'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -48,15 +49,18 @@ export class UsersService {
     }
 
     async update(id: string, data: Partial<UserDTO>) {
-        const user = await this.userRepository.findOne({ where: { id }, relations:['posts']});
+        const { avatar } = data;
+        const image = avatar;
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'listFollowers'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
+        console.log(data)
         return this.userRepository.update({ id }, data);
     }
 
     async delete(id: string) {
-        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts']});
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'listFollowers'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -80,7 +84,7 @@ export class UsersService {
         return user.toResponseObject();
     }
 
-    async register(data: UserDTO) : Promise<UserRO>{
+    async register(data: UserDTO): Promise<UserRO> {
         const { username } = data;
         let user = await this.userRepository.findOne({ where: { username } });
         if (user) {
@@ -96,54 +100,57 @@ export class UsersService {
         return await this.userRepository.findOne({ username });
     }
 
-    async search(query: string)  {
-        const user = await this.userRepository.find({ where :{ username : query}})
-        return user;
+    async search(query: string): Promise<UserRO[]> {
+        const users = await this.userRepository.find({ where: { username: Like('%' + query + '%%') }, relations: ['posts', 'listFollowers'] });
+        if (!users) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+        return users.map(user => user.toResponseObject(false))
+
     }
 
-    async changePassword(data, users: Partial<UserDTO>, id: string){
-        const user = await this.userRepository.findOne( {where :{id : id}});
+    async changePassword(data, users: Partial<UserDTO>, id: string) {
+        const user = await this.userRepository.findOne({ where: { id: id } });
         const { password } = user;
-        if(users.password !== password) {
+        if (users.password !== password) {
             throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
         }
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                   user: 'duong080798@gmail.com',
-                   pass: 'sliverkun998'
-               }
-           });
-           const url = `http://localhost:3000/confirm/${users.email}`
-           const mailOptions = {
+                user: 'duong080798@gmail.com',
+                pass: 'sliverkun998'
+            }
+        });
+        const url = `http://localhost:3000/confirm/${users.email}`
+        const mailOptions = {
             from: 'duong080798@gmail.com', // sender address
             to: 'duongdv@haposoft.com', // list of receivers
             subject: 'Confirm email', // Subject line
             html: `Please click this mail to confirm your email : <a href =${url}>${url}</>`// plain text body
-          };
+        };
         await transporter.sendMail(mailOptions, function (err, info) {
-            if(err)
-              console.log(err)
+            if (err)
+                console.log(err)
             else
-              console.log(info);
-         });
+                console.log(info);
+        });
         return this.userRepository.update({ id }, data);
     }
 
-    async follow(following : string, follower : UserRO) : Promise<UserRO>  {
-        const user = await this.userRepository.findOne({where :{id : following}})
-        console.log("following :", user)
-        if(!user){
+    async follow(following: string, follower: Partial<UserRO>) {
+        const user = await this.userRepository.findOne({ where: { id: following } })
+        // console.log(follower)
+        if (!user) {
             throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
         }
-        
-        await this.userRepository.create({...follower, listFollow: user.email})
-        await this.userRepository.save({...follower, listFollow: user.email})
-        // await user.listFollow.push(followers.email);
-        return {...follower, listFollow: user.email};
+        var users = [];
+        users.push(user);
+        await this.userRepository.save({ ...follower, listFollowers: users })
+        return { ...follower, listFollowers: users };
     }
 
-    async unfollow(following : string, follower ) {
+    async unfollow(following: string, follower) {
         // const user = await this.userRepository.findOne({where :{email : following}})
         // if(!user){
         //     throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
@@ -156,13 +163,25 @@ export class UsersService {
         // return user;
     }
 
-    public async setAvatar(userId: string, avatarUrl: string){
-        const user : any = await this.userRepository.findOne({ where: { id: userId }, relations:['posts', 'avatar']});
+    async followPost(id: string, post: Partial<PostRO>) {
+        const user = await this.userRepository.findOne({ where: { id: id } })
+        // console.log(follower)
+        if (!user) {
+            throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        }
+        var posts = [];
+        posts.push(post);
+        await this.userRepository.save({ ...user, followPosts: posts })
+        return { ...user, followPosts: posts };
+    }
+
+    public async setAvatar(userId: string, avatarUrl: string) {
+        const user: any = await this.userRepository.findOne({ where: { id: userId }, relations: ['posts', 'avatar'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
-        await this.userRepository.create( {...user, avatar: avatarUrl});
-        await this.userRepository.save( {...user, avatar: avatarUrl});
-        return {...user, avatar: avatarUrl};
+        await this.userRepository.create({ ...user, avatar: avatarUrl });
+        await this.userRepository.save({ ...user, avatar: avatarUrl });
+        return { ...user, avatar: avatarUrl };
     }
 }

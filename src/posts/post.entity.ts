@@ -27,10 +27,16 @@ export class PostEntity {
 
     @Column('text')
     category: string;
+    
+    @Column('text')
+    address: string;
 
     @Column('text')
     imgUrl: string;
 
     @ManyToOne(type => UserEntity, author => author.posts)
     author: UserEntity;
+
+    @ManyToOne(type => UserEntity, follower => follower.followPosts)
+    followers: UserEntity;
 }

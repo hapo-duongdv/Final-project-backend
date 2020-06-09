@@ -4,7 +4,7 @@ import { ValidationExceptionFilter } from 'src/filters/validation-exception.filt
 import { User } from 'src/users/user.decorator';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { UserDTO } from 'src/users/user.dto';
+import { UserDTO, UserRO } from 'src/users/user.dto';
 import { PostsService } from './posts.service';
 import { PostDTO } from './post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -26,14 +26,14 @@ export class PostsController {
 
     @Get()
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     showAll() {
         return this.postsService.showAll();
     }
 
     @Post('/create')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
     create( @Body() data: PostDTO, @User('id') user) {
@@ -43,7 +43,7 @@ export class PostsController {
 
     @Get(':id')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     read(@Param('id') id: string) {
         return this.postsService.read(id)
     }
@@ -51,7 +51,7 @@ export class PostsController {
 
     @Put(':id')
     @UseGuards(AuthGuard,RolesGuard )
-    @Roles("user")
+    @Roles("user", "admin")
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
     update(@Param('id') id: string ,@Body() data: Partial<PostDTO>) {
@@ -61,7 +61,7 @@ export class PostsController {
 
     @Delete(':id')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user")
+    @Roles("user", "admin")
     delete(@Param('id') id: string) {
         this.logData({ id });
         return this.postsService.delete(id);
@@ -88,5 +88,13 @@ export class PostsController {
         return res.sendFile(
             image, { root: 'uploads' }
         )
+    }
+
+    @Post('/follow-post/:id')
+    @UseGuards(AuthGuard)
+    @UseFilters(ValidationExceptionFilter)
+    @UsePipes(ValidationPipe)
+    followPost(@Param('id') id: string, @Body() data: UserRO) {
+        return this.postsService.follower(id, data);
     }
 }
