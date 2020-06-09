@@ -12,7 +12,7 @@ import { FollowersModule } from './followers/followers.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot(), UsersModule, PostsModule, MulterModule.register({ dest: './uploads' }), FollowersModule],
-  controllers: [AppController, FollowersController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -36,12 +36,12 @@ export class UsersService {
     }
 
     async showAll(): Promise<UserRO[]> {
-        const users = await this.userRepository.find({ relations: ['posts', 'listFollowers', 'followers', 'followPosts'] });
+        const users = await this.userRepository.find({ relations: ['posts', 'followers', 'following', 'followPosts'] });
         return users.map(user => user.toResponseObject(false))
     }
 
     async read(id: string): Promise<UserRO> {
-        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'listFollowers', 'followPosts'] });
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'followers', 'following', 'followPosts'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -51,7 +51,7 @@ export class UsersService {
     async update(id: string, data: Partial<UserDTO>) {
         const { avatar } = data;
         const image = avatar;
-        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'listFollowers'] });
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'followers', 'following'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -60,7 +60,7 @@ export class UsersService {
     }
 
     async delete(id: string) {
-        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'listFollowers'] });
+        const user = await this.userRepository.findOne({ where: { id }, relations: ['posts', 'followers', 'following'] });
         if (!user) {
             throw new HttpException("User not found!", HttpStatus.NOT_FOUND)
         }
@@ -101,7 +101,7 @@ export class UsersService {
     }
 
     async search(query: string): Promise<UserRO[]> {
-        const users = await this.userRepository.find({ where: { username: Like('%' + query + '%%') }, relations: ['posts', 'listFollowers'] });
+        const users = await this.userRepository.find({ where: { username: Like('%' + query + '%%') }, relations: ['posts', 'followers', 'following'] });
         if (!users) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }

@@ -22,19 +22,8 @@ export class PostsService {
         }
     }
 
-    // private ensureOwnership(task: TaskEntity, userId: string, projectId: string) {
-    //     if (task.author.id !== userId) {
-    //         throw new HttpException('Incorret user', HttpStatus.UNAUTHORIZED);
-    //     }
-    //     // if (task.project.id !== projectId ) {
-    //     //     throw new HttpException('Incorret project', HttpStatus.NOT_FOUND);
-    //     // }
-    // }
-
-    async showAll() {
-        // const tasks =  await this.taskRepository.find({relations: ['author']});
-        // return tasks.map(task => this.toResponseObjectTask(task));
-        const posts = await this.postRepository.find({ relations: ['author'] });
+    async showAll(page : number = 1) {
+        const posts = await this.postRepository.find({ relations: ['author'], take: 3, skip: 3 *(page -1) });
         return posts;
     }
 

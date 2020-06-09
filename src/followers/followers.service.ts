@@ -19,7 +19,6 @@ export class FollowersService {
         const user = await this.userRepository.findOne({ where: { id: following } });
         const id = follower.id;
         const follower1 = await this.userRepository.findOne({ where: { id: id } })
-
         if (!user) {
             throw new HttpException("Not Found", HttpStatus.NOT_FOUND)
         }

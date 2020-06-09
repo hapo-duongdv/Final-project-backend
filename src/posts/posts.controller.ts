@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, HttpException, HttpStatus, Body, Get, UseGuards, ValidationPipe, Post, UseFilters, Put, Logger, UsePipes, UseInterceptors, Res, UploadedFile } from '@nestjs/common';
+import { Controller, Delete, Param, HttpException, HttpStatus, Body, Get, UseGuards, ValidationPipe, Post, UseFilters, Put, Logger, UsePipes, UseInterceptors, Res, UploadedFile, Query } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { ValidationExceptionFilter } from 'src/filters/validation-exception.filter';
 import { User } from 'src/users/user.decorator';
@@ -25,10 +25,8 @@ export class PostsController {
     }
 
     @Get()
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user", "admin")
-    showAll() {
-        return this.postsService.showAll();
+    showAll(@Query('page') page: number) {
+        return this.postsService.showAll(page);
     }
 
     @Post('/create')
