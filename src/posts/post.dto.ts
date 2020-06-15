@@ -22,6 +22,9 @@ export class PostDTO {
     cost : string;
 
     @IsNotEmpty()
+    isShow : boolean;
+
+    @IsNotEmpty()
     imgUrl : string;
 }
 
@@ -30,6 +33,7 @@ export class PostRO {
     updated_at: Date;
     created_at : Date;
     title: string;
+    isShow : boolean;
     description: string;
     status: string;
     address: string;

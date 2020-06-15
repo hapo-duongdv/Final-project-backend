@@ -8,10 +8,11 @@ import { MulterModule } from '@nestjs/platform-express';
 // import { AppGateway } from './app.gateway';
 import { FollowersController } from './followers/followers.controller';
 import { FollowersModule } from './followers/followers.module';
+import { ChatModule } from './chat/chat.module';
 
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), UsersModule, PostsModule, MulterModule.register({ dest: './uploads' }), FollowersModule],
+  imports: [TypeOrmModule.forRoot(), UsersModule, PostsModule, MulterModule.register({ dest: './uploads' }), FollowersModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })

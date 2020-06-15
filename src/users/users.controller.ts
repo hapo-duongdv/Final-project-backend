@@ -27,8 +27,8 @@ export class UsersController {
     }
 
     @Get()
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("user", "admin")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user", "admin")
     showAllUsers() {
         return this.usersService.showAll();
     }
@@ -42,8 +42,8 @@ export class UsersController {
     }
 
     @Get(':id')
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("user", "admin")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user", "admin")
     readUser(@Param('id') id: string) {
         return this.usersService.read(id)
     }
@@ -59,8 +59,8 @@ export class UsersController {
     }
 
     @Delete(':id')
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @Roles("user", "admin")
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("user", "admin")
     deleteUser(@Param('id') id: string) {
         return this.usersService.delete(id)
     }
@@ -73,13 +73,12 @@ export class UsersController {
     }
 
     @Get('/me/:token')
-    // @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard)
     getInfo(@Param('token') token: string) {
         return this.usersService.getInfor(token);
     }
 
     @Get('/search/:query')
-    @UseGuards(AuthGuard)
     search(@Param('query') query: string) {
         return this.usersService.search(query);
     }
@@ -115,7 +114,7 @@ export class UsersController {
 
     @Post('/:id/unfollow')
     @UseGuards(AuthGuard)
-    unfollow(@Param('id') following: string, @Body() follower: string) {
+    unfollow(@Param('id') following: string, @Body() follower: Partial<UserRO>) {
         return this.usersService.unfollow(following, follower);
     }
 

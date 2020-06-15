@@ -34,6 +34,9 @@ export class PostEntity {
     @Column('text')
     imgUrl: string;
 
+    @Column({ default: false })
+    isShow: boolean;
+
     @ManyToOne(type => UserEntity, author => author.posts)
     author: UserEntity;
 

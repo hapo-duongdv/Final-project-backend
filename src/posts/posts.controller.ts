@@ -25,8 +25,13 @@ export class PostsController {
     }
 
     @Get()
-    showAll(@Query('page') page: number) {
-        return this.postsService.showAll(page);
+    showAll() {
+        return this.postsService.showAll();
+    }
+
+    @Get('/page')
+    show(@Query('page') page: number) {
+        return this.postsService.show(page);
     }
 
     @Post('/create')
@@ -94,5 +99,11 @@ export class PostsController {
     @UsePipes(ValidationPipe)
     followPost(@Param('id') id: string, @Body() data: UserRO) {
         return this.postsService.follower(id, data);
+    }
+
+    
+    @Get('/search/:query')
+    search(@Param('query') query: string) {
+        return this.postsService.search(query);
     }
 }

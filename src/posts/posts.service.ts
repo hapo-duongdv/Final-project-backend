@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { UserEntity } from 'src/users/user.entity';
 import { PostEntity } from './post.entity';
 import { PostDTO, PostRO } from './post.dto';
@@ -22,8 +22,13 @@ export class PostsService {
         }
     }
 
-    async showAll(page : number = 1) {
-        const posts = await this.postRepository.find({ relations: ['author'], take: 3, skip: 3 *(page -1) });
+    async showAll() {
+        const posts = await this.postRepository.find({ relations: ['author'], order: {id : "DESC"}  });
+        return posts;
+    }
+
+    async show(page : number = 1) {
+        const posts = await this.postRepository.find({ relations: ['author'], take: 3, skip: 3 *(page -1), order: {id : "DESC"} });
         return posts;
     }
 
@@ -76,5 +81,14 @@ export class PostsService {
         await this.postRepository.create({...post, followers: user });
         await this.postRepository.save({...post, followers: user })
         return {...post, followers: user};
+    }
+
+    async search(query: string): Promise<PostRO[]> {
+        console.log(query)
+        const posts = await this.postRepository.find({ where: { title: Like('%' + query + '%%') }, relations: ['author'] });
+        if (!posts) {
+            throw new HttpException('Posts not found', HttpStatus.NOT_FOUND);
+        }
+        return posts;
     }
 }

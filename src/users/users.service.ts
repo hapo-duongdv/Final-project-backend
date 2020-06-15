@@ -150,17 +150,16 @@ export class UsersService {
         return { ...follower, listFollowers: users };
     }
 
-    async unfollow(following: string, follower) {
-        // const user = await this.userRepository.findOne({where :{email : following}})
-        // if(!user){
-        //     throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
-        // }
-        // const followers = await this.userRepository.findOne({where :{id : follower}})
-        // if(!followers){
-        //     throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
-        // }
-        // await user.listFollow.splice(parseInt(followers.id));
-        // return user;
+    async unfollow(following: string, follower :Partial<UserRO>) {
+        const user = await this.userRepository.findOne({where :{email : following}})
+        if(!user){
+            throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        }
+        const followers = await this.userRepository.findOne({where :{id : follower}})
+        if(!followers){
+            throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
+        }
+        return user;
     }
 
     async followPost(id: string, post: Partial<PostRO>) {

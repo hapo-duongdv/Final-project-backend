@@ -1,63 +1,67 @@
-import {
-  SubscribeMessage,
-  WebSocketGateway,
-  OnGatewayInit,
-  WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-} from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
-import { Socket, Server } from 'socket.io';
+// import {
+//   SubscribeMessage,
+//   WebSocketGateway,
+//   OnGatewayInit,
+//   WebSocketServer,
+//   OnGatewayConnection,
+//   OnGatewayDisconnect,
+// } from '@nestjs/websockets';
+// import { Logger } from '@nestjs/common';
+// import { Socket, Server } from 'socket.io';
 
-@WebSocketGateway()
-export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+// @WebSocketGateway()
+// export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-  @WebSocketServer() server: Server;
-  private logger: Logger = new Logger('AppGateway');
+//   @WebSocketServer() server: Server;
+//   private logger: Logger = new Logger('AppGateway');
 
-  public user : {id :"", name: string}
+//   public users : {id :"", name: string}
   
 
-  @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, payload: string): void {
-    console.log(this.user.name)
-    this.server.emit('newMessage', {message : payload, user : this.user.name});
-  }
+//   @SubscribeMessage('sendMessage')
+//   handleMessage(client: Socket, message : {sender: string, mes: string}): void {
+//     console.log(message)
+//     this.server.emit('newMessage', message);
+//   }
 
-  @SubscribeMessage('new-user')
-  handleUser(client: Socket, payload: string): void {
-    this.user = { id: client.id, name: payload }
-    // console.log(this.user)
-    this.server.emit('user-connected', payload) 
-    // => {
-    //   user[client.id] = payload
-    //   client.emit('user-connected', payload)
-    // })
-  }
+//   @SubscribeMessage('joinRoom')
+//   handleJoinRoom(client: Socket, room: string): void {
+//     client.join(room)
+//     console.log(room)
+//     this.server.emit('joinedRoom', room);
+//   }
 
-  @SubscribeMessage('disconncet')
-  handleDisconnected(client: Socket, payload: string): void {
-    console.log(this.user)
-    this.server.emit('user-disconnected', payload) 
-    delete this.user;
-    // => {
-    //   user[client.id] = payload
-    //   client.emit('user-connected', payload)
-    // })
-  }
+  
+//   @SubscribeMessage('leaveRoom')
+//   handleLeaveRoom(client: Socket, room: string): void {
+//     client.leave(room)
+//     console.log(room)
+//     this.server.emit('leftRoom', room);
+//   }
 
-  afterInit(server: Server) {
-    this.logger.log('Init');
-  }
+//   @SubscribeMessage('new-user')
+//   handleUser(client: Socket, payload: string): void {
+//     this.users = { id: client.id, name: payload }
+//     // console.log(this.user)
+//     this.server.emit('user-connected', payload) 
+//     // => {
+//     //   user[client.id] = payload
+//     //   client.emit('user-connected', payload)
+//     // })
+//   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-  }
+//   afterInit(server: Server) {
+//     this.logger.log('Init');
+//   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client connected: ${client.id}`);
-    client.emit('connection', 'Connected!!')
-  }
+//   handleDisconnect(client: Socket) {
+//     this.logger.log(`Client disconnected: ${client.id}`);
+//   }
+
+//   handleConnection(client: Socket, ...args: any[]) {
+//     this.logger.log(`Client connected: ${client.id}`);
+//     client.emit('connection', 'Connected!!')
+//   }
 
 
-}
+// }
