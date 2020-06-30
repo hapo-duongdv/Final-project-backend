@@ -25,9 +25,12 @@ export class FollowersService {
         if (!follower1) {
             throw new HttpException("Not Found", HttpStatus.NOT_FOUND)
         }
-        const follow: any = await this.followerRepository.create({ userFollowers: follower1, userFollowing: user })
-        await this.followerRepository.save(follow)
-        return follow;
+        const follow1 = await this.followerRepository.findOne({ where: { userFollowers: follower, userFollowing: following } });
+        if (!follow1) {
+            const follow: any = await this.followerRepository.create({ userFollowers: follower1, userFollowing: user })
+            await this.followerRepository.save(follow)
+            return follow;
+        }
     }
 
     async getData(): Promise<FollowerEntity> {

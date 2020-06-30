@@ -28,7 +28,7 @@ export class PostsService {
     }
 
     async show(page : number = 1) {
-        const posts = await this.postRepository.find({ relations: ['author'], take: 3, skip: 3 *(page -1), order: {id : "DESC"} });
+        const posts = await this.postRepository.find({ relations: ['author'], take: 4, skip: 4 *(page -1), order: {id : "DESC"} });
         return posts;
     }
 
@@ -81,6 +81,16 @@ export class PostsService {
         await this.postRepository.create({...post, followers: user });
         await this.postRepository.save({...post, followers: user })
         return {...post, followers: user};
+    }
+
+    async unfollow(id : string, user: UserRO){
+        const post = await this.postRepository.findOne({where :{id : id}})
+        // console.log(id)
+        if(!post){
+            throw new HttpException('post not exists', HttpStatus.BAD_REQUEST);
+        }
+        await this.postRepository.delete({ followers: user });
+        return {...post};
     }
 
     async search(query: string): Promise<PostRO[]> {

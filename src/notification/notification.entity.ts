@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, CreateDateColumn, Column, UpdateDateColumn } from "typeorm";
 
-@Entity('chat')
-export class ChatEntity {
+@Entity('notification')
+export class NotificationEntity {
 
     @PrimaryGeneratedColumn()
     id: string;
@@ -13,13 +13,13 @@ export class ChatEntity {
     updated_at: Date;
 
     @Column({ type: 'text', nullable: true })
-    message: string;
+    notification: string;
 
     @Column({ type: 'text', nullable: true })
     sender: string;
 
     @Column({ type: 'text', nullable: true })
-    room: string;
+    author: string;
 
     @Column({ type: 'text', nullable: true })
     receiver: string

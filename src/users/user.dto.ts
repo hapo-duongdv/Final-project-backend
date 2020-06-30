@@ -21,7 +21,6 @@ export class UserDTO {
     email : string;
 
     @IsString()
-    @IsNotEmpty()
     address : string;
 
     @IsString()

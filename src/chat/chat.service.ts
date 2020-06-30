@@ -3,6 +3,9 @@ import { ChatEntity } from './chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { ChatRO } from './chat.dto'
+import { where } from 'sequelize';
+import { send } from 'process';
+
 
 @Injectable()
 export class ChatService {
@@ -25,19 +28,40 @@ export class ChatService {
         return await this.chatRepository.findOne({ where: { id: id } });
     }
 
-    async find(username: string) {
-        const chat = await this.chatRepository.find({ where: { room: Like('%' + username + '%%') } });
-        if(!chat) {
+    async find(sender: string, receiver: string) {
+        const chat1 = await this.chatRepository.find({ where: { room: Like('%' + receiver + sender + '%') } });
+        const chat2 = await this.chatRepository.find({ where: { room: Like('%' + sender + receiver + '%') } });
+        if (!chat1) {
             throw new HttpException('not found!', HttpStatus.NOT_FOUND);
         }
-        return chat;
+        var chats = [];
+        for (let chat of chat1) {
+            chats.push(chat);
+        }
+        for (let chat of chat2) {
+            chats.push(chat);
+        }
+        return chats.sort((a, b) => (a.id > b.id) ? 1 : -1);
     }
 
     async delete(id: string) {
         const chat = await this.chatRepository.findOne({ where: { id: id } });
-        if(!chat) {
+        if (!chat) {
             throw new HttpException('not found!', HttpStatus.NOT_FOUND);
         }
         return await this.chatRepository.delete({ id });
+    }
+
+    async findUserChat(user: string) {
+        const listChat1 = await this.chatRepository.find({ where: { receiver: Like('%' + user + '%%') } })
+        const listChat2 = await this.chatRepository.find({ where: { sender: Like('%' + user + '%%') } })
+        var chats = [];
+        for (let chat of listChat1) {
+            chats.push(chat);
+        }
+        for (let chat of listChat2) {
+            chats.push(chat);
+        }
+        return chats;
     }
 }

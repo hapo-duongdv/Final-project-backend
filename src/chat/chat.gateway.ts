@@ -9,21 +9,46 @@ import {
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
+import { NotificationService } from 'src/notification/notification.service';
+import { NotificationEntity } from 'src/notification/notification.entity';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-    constructor(private chatService: ChatService) { }
+    constructor(private chatService: ChatService,
+        private notificationService: NotificationService) { }
+
 
     @WebSocketServer() server: Server;
     private logger: Logger = new Logger('AppGateway');
 
-    // private chat = new ChatEntity();
-
     @SubscribeMessage('sendMessage')
-    handleMessage(client: Socket, mes: { sender: string, room: string, message: string }): void {
+    handleMessage(client: Socket, mes: { sender: string, room: string, message: string, receiver: string }): void {
         console.log(mes)
         this.server.emit('newMessage', mes);
         this.chatService.create(mes)
+    }
+
+    @SubscribeMessage('follow')
+    handleNotification(client: Socket, notification: { sender: string, receiver: string }): void {
+        this.server.emit('newNotification', notification);
+        var notifications = new NotificationEntity();
+        notifications.sender = notification.sender;
+        notifications.receiver = notification.receiver;
+        notifications.author = notification.receiver;
+        notifications.notification = "Bạn đã được theo dõi bởi " + notification.sender
+        this.notificationService.create(notifications)
+    }
+
+    @SubscribeMessage('follow-post')
+    handleNotification2(client: Socket, notification: { sender: string, receiver: string }): void {
+        this.server.emit('newNotification2', notification);
+        var notifications = new NotificationEntity();
+        notifications.sender = notification.sender;
+        notifications.receiver = notification.receiver;
+        notifications.author = notification.receiver;
+        notifications.notification = notification.sender+ " đã theo dõi bài viết của bạn "
+        console.log(notifications)
+        this.notificationService.create(notifications)
     }
 
     @SubscribeMessage('joinRoom')

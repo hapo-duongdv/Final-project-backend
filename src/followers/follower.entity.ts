@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Timestamp, JoinTable, ManyToMany } from 'typeorm'
 import { UserEntity } from 'src/users/user.entity'
 
-@Entity('followers')
+@Entity('follow')
 export class FollowerEntity {
 
     @PrimaryGeneratedColumn()

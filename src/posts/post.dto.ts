@@ -25,6 +25,9 @@ export class PostDTO {
     isShow : boolean;
 
     @IsNotEmpty()
+    isBought : boolean;
+
+    @IsNotEmpty()
     imgUrl : string;
 }
 
@@ -34,6 +37,7 @@ export class PostRO {
     created_at : Date;
     title: string;
     isShow : boolean;
+    isBought : boolean;
     description: string;
     status: string;
     address: string;

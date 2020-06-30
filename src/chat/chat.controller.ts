@@ -15,9 +15,15 @@ export class ChatController {
         return this.chatService.read(id);
     }
 
-    @Get("/find/:room")
-    find(@Param('room') room: string) {
-        return this.chatService.find(room);
+    @Get("/find/:sender/:receiver")
+    find(@Param('sender') sender: string, @Param('receiver') receiver: string) {
+        return this.chatService.find(sender, receiver);
+    }
+
+    
+    @Get("/find-users/:user")
+    findUser(@Param('user') user: string ) {
+        return this.chatService.findUserChat(user);
     }
 
     @Delete(":id")

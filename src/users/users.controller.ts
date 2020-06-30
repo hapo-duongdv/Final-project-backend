@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UsePipes, ValidationPipe, UseGuards, UseFilters, Param, HttpException, HttpStatus, Delete, Put, SetMetadata, Logger, Request, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, UsePipes, ValidationPipe, UseGuards, UseFilters, Param, HttpException, HttpStatus, Delete, Put, SetMetadata, Logger, Request, Redirect, Res, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDTO, UserRO } from './user.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -29,8 +29,15 @@ export class UsersController {
     @Get()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles("user", "admin")
-    showAllUsers() {
-        return this.usersService.showAll();
+    show() {
+        return this.usersService.show();
+    }
+
+    @Get('/page')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles("admin", "user")
+    showAllUsers(@Query('page') page: number) {
+        return this.usersService.showAll(page);
     }
 
     @Post('/create')
@@ -79,8 +86,13 @@ export class UsersController {
     }
 
     @Get('/search/:query')
-    search(@Param('query') query: string) {
-        return this.usersService.search(query);
+    search1(@Param('query') query: string) {
+        return this.usersService.search1(query);
+    }
+
+    @Get('/find-chat/:username')
+    findByUsername(@Param('username') username: string) {
+        return this.usersService.findByUsername(username);
     }
 
     @Put('changePassword')
@@ -112,6 +124,15 @@ export class UsersController {
         return this.usersService.followPost(id, data);
     }
 
+
+    @Post('/unfollow-post/:id')
+    @UseGuards(AuthGuard)
+    @UseFilters(ValidationExceptionFilter)
+    @UsePipes(ValidationPipe)
+    unfollowPost(@Param('id') id: string, @Body() data: Partial<PostRO>) {
+        return this.usersService.unFollowPost(id, data);
+    }
+
     @Post('/:id/unfollow')
     @UseGuards(AuthGuard)
     unfollow(@Param('id') following: string, @Body() follower: Partial<UserRO>) {
@@ -139,5 +160,22 @@ export class UsersController {
         return res.sendFile(
             image, { root: 'avatar' }
         )
+    }
+
+    @Get('/searchPage/:searchBy/:query')
+    @UseGuards(AuthGuard)
+    search(@Param('query') query: string, @Param('searchBy') searchBy: string, @Query('page') page: number) {
+        return this.usersService.searchPage(query, searchBy, page);
+    }
+    @Get('/search/:searchBy')
+    @UseGuards(AuthGuard)
+    searchPage(@Query('query') query: string, @Param('searchBy') searchBy: string) {
+        return this.usersService.search(query, searchBy);
+    }
+
+    @Get('/search')
+    @UseGuards(AuthGuard)
+    searchOther(@Query('query') query: string) {
+        return this.usersService.searchOther(query);
     }
 }

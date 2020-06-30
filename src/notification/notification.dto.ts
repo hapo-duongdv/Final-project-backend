@@ -1,24 +1,24 @@
 import { IsNotEmpty, IsString, IsInt } from "class-validator";
 
-export class ChatDTO {
+export class NotificationDTO {
 
     @IsString()
     sender : string;
 
     @IsString()
-    message : string;
+    notification : string;
 
     @IsString()
-    room : string;
+    author : string;
 
     @IsString()
     receiver : string;
 }
 
-export class ChatRO {
+export class NotificationRO {
     id? : string;
     sender: string;
-    message: string;
-    room: string;
+    notification: string;
+    author: string;
     receiver: string;
 }

@@ -37,6 +37,9 @@ export class PostEntity {
     @Column({ default: false })
     isShow: boolean;
 
+    @Column({ default: false })
+    isBought: boolean;
+
     @ManyToOne(type => UserEntity, author => author.posts)
     author: UserEntity;
 
