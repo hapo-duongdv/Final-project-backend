@@ -82,7 +82,8 @@ export class UsersService {
     async login(data) {
         const { username, password } = data;
         const user = await this.userRepository.findOne({ where: { username } });
-        if (!user) {
+        console.log(await user.comparePassword(password))
+        if (!user || !(await user.comparePassword(password))) {
             throw new HttpException(
                 'Invalid username/password',
                 HttpStatus.BAD_REQUEST,
@@ -118,33 +119,25 @@ export class UsersService {
 
     }
 
-    async changePassword(data, users: Partial<UserDTO>, id: string) {
-        const user = await this.userRepository.findOne({ where: { id: id } });
-        const { password } = user;
-        if (users.password !== password) {
-            throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+    async changePassword(data, username: string) {
+        const user = await this.userRepository.findOne({ where: { username: Like('%' + username + '%') } });
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'duong.dv160818@gmail.com',
-                pass: 'duong08071998'
-            }
-        });
-        const url = `http://localhost:3000/confirm/${users.email}`
-        const mailOptions = {
-            from: 'duong.dv160818@gmail.com', // sender address
-            to: 'duong080798@gmail.com', // list of receivers
-            subject: 'Confirm email', // Subject line
-            html: `Please click this mail to confirm your email : <a href =${url}>${url}</>`// plain text body
-        };
-        await transporter.sendMail(mailOptions, function (err, info) {
-            if (err)
-                console.log(err)
-            else
-                console.log(info);
-        });
-        return this.userRepository.update({ id }, data);
+        const { id } = user;
+        data.password = await user.hashPassword1(data.password);
+        const users = await this.userRepository.update({ id }, data);
+        return users;
+    }
+
+    async sendEmail(username: string) {
+        const user = await this.userRepository.findOne({ where: { username: Like('%' + username + '%') } });
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+        const url = `http://localhost:4000/confirm/${user.email}`
+        var numberConfirm = await sendEmail(user.email, url)
+        return numberConfirm;
     }
 
     async follow(following: string, follower: Partial<UserRO>) {
@@ -184,16 +177,14 @@ export class UsersService {
     }
 
     async unFollowPost(id: string, post: Partial<PostRO>): Promise<UserEntity> {
-        const user = await this.userRepository.findOne({ where: { id: id } })
+        const user = await this.userRepository.findOne({ where: { id: id }, relations: ['posts', 'followers', 'following', 'followPosts'] })
         // console.log(follower)
         if (!user) {
             throw new HttpException('User not exists', HttpStatus.BAD_REQUEST);
         }
         var list = user.followPosts;
-        console.log(list)
-        list.filter((item) => item.id === post.id)
+        list = list.filter((item) => item.id !== post.id)
         await this.userRepository.save({ ...user, followPosts: list })
-        // return { ...user, followPosts: list};
         return user;
     }
 
@@ -207,7 +198,7 @@ export class UsersService {
         return { ...user, avatar: avatarUrl };
     }
 
-    
+
     async searchPage(query: string, searchBy: string, page: number = 1): Promise<UserRO[]> {
         if (searchBy) {
             switch (searchBy) {

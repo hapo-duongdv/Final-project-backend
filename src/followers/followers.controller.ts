@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Delete } from '@nestjs/common';
 import { FollowersService } from './followers.service';
 import { FollowerEntity } from './follower.entity';
 import { FollowerDTO } from './follower.dto';
@@ -8,17 +8,22 @@ export class FollowersController {
     constructor(private followersService: FollowersService) { }
 
     @Get()
-    getAll(){
+    getAll() {
         return this.followersService.getData()
     }
 
     @Get(":id")
-    read(@Param("id") id: string){
+    read(@Param("id") id: string) {
         return this.followersService.read(id)
     }
 
     @Post(":id")
-    follow(@Param("id") id: string,@Body() data : FollowerEntity){
+    follow(@Param("id") id: string, @Body() data: FollowerEntity) {
         return this.followersService.follow(id, data);
+    }
+
+    @Delete(":id")
+    delete(@Param("id") id: string) {
+        return this.followersService.delete(id)
     }
 }

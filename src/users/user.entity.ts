@@ -60,6 +60,10 @@ export class UserEntity {
         this.password = await bcrypt.hash(this.password, 10);
     }
 
+    public async hashPassword1(password) {
+        return await bcrypt.hash(password , 10);
+    }
+
     public toResponseObject(showToken: boolean = true) {
         const { id, created_at, name, username, token, roles, address, email, phone, followers, followPosts, avatar } = this;
         const responseObject: any = { id, created_at, name, username, address, roles, email, phone, token, followers, avatar, followPosts };

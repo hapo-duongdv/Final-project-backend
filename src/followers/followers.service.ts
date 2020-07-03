@@ -42,4 +42,12 @@ export class FollowersService {
         const follower: any = await this.followerRepository.findOne({ where: { id: id }, relations: ["userFollowers", "userFollowing"] })
         return follower;
     }
+    
+    async delete(id: string) {
+        const follow = await this.followerRepository.findOne({ where: { id }, relations: ["userFollowers", "userFollowing"] });
+        if (!follow) {
+            throw new HttpException("follow not found!", HttpStatus.NOT_FOUND)
+        }
+        return await this.followerRepository.delete({ id });
+    }
 }

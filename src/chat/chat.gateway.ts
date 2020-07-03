@@ -47,7 +47,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         notifications.receiver = notification.receiver;
         notifications.author = notification.receiver;
         notifications.notification = notification.sender+ " đã theo dõi bài viết của bạn "
-        console.log(notifications)
         this.notificationService.create(notifications)
     }
 

@@ -27,15 +27,11 @@ export class UsersController {
     }
 
     @Get()
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user", "admin")
     show() {
         return this.usersService.show();
     }
 
     @Get('/page')
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles("admin", "user")
     showAllUsers(@Query('page') page: number) {
         return this.usersService.showAll(page);
     }
@@ -49,8 +45,6 @@ export class UsersController {
     }
 
     @Get(':id')
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user", "admin")
     readUser(@Param('id') id: string) {
         return this.usersService.read(id)
     }
@@ -67,7 +61,7 @@ export class UsersController {
 
     @Delete(':id')
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles("user", "admin")
+    @Roles("admin")
     deleteUser(@Param('id') id: string) {
         return this.usersService.delete(id)
     }
@@ -95,18 +89,20 @@ export class UsersController {
         return this.usersService.findByUsername(username);
     }
 
-    @Put('changePassword')
-    @UseGuards(AuthGuard)
+    @Put('/changePassword/:username')
     @UseFilters(ValidationExceptionFilter)
     @UsePipes(ValidationPipe)
-    changePasswrod(@Body() data: string, @Param('') user: Partial<UserDTO>, @User('id') id: string) {
-        return this.usersService.changePassword(id, user, data)
+    changePasswrod(@Body() data: Partial<UserDTO>, @Param('username') username: string) {
+        return this.usersService.changePassword(data, username)
     }
 
-    @Get('/confirm/:email')
-    confrim() {
-        return Redirect('http://localhost:3000')
+    @Get('/send-email/:username')
+    @UseFilters(ValidationExceptionFilter)
+    @UsePipes(ValidationPipe)
+    sendEmail(@Param('username') username: string) {
+        return this.usersService.sendEmail(username)
     }
+
 
     @Post('/follow/:id')
     @UseGuards(AuthGuard)
@@ -163,18 +159,15 @@ export class UsersController {
     }
 
     @Get('/searchPage/:searchBy/:query')
-    @UseGuards(AuthGuard)
     search(@Param('query') query: string, @Param('searchBy') searchBy: string, @Query('page') page: number) {
         return this.usersService.searchPage(query, searchBy, page);
     }
     @Get('/search/:searchBy')
-    @UseGuards(AuthGuard)
     searchPage(@Query('query') query: string, @Param('searchBy') searchBy: string) {
         return this.usersService.search(query, searchBy);
     }
 
     @Get('/search')
-    @UseGuards(AuthGuard)
     searchOther(@Query('query') query: string) {
         return this.usersService.searchOther(query);
     }
