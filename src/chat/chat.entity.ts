@@ -9,9 +9,6 @@ export class ChatEntity {
     @CreateDateColumn()
     created_at: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
-
     @Column({ type: 'text', nullable: true })
     message: string;
 

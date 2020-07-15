@@ -10,9 +10,6 @@ export class FollowerEntity {
     @CreateDateColumn()
     created_at: Date
 
-    @UpdateDateColumn()
-    updated_at: Date
-
     @ManyToOne(
         () => UserEntity,
         (u: UserEntity) => u.followers
