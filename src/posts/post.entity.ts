@@ -27,7 +27,22 @@ export class PostEntity {
 
     @Column('text')
     category: string;
+    
+    @Column('text')
+    address: string;
+
+    @Column('text')
+    imgUrl: string;
+
+    @Column({ default: false })
+    isShow: boolean;
+
+    @Column({ default: false })
+    isBought: boolean;
 
     @ManyToOne(type => UserEntity, author => author.posts)
     author: UserEntity;
+
+    @ManyToOne(type => UserEntity, follower => follower.followPosts)
+    followers: UserEntity;
 }

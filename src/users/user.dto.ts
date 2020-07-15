@@ -1,14 +1,20 @@
-import { IsNotEmpty, IsString,  } from "class-validator";
+import { IsNotEmpty, IsString, IsArray,  } from "class-validator";
+import { UserEntity } from "./user.entity";
+import { PostRO } from "src/posts/post.dto";
+import { FollowerEntity } from "src/followers/follower.entity";
 
 export class UserDTO {
 
     @IsNotEmpty()
+    @IsString()
     username : string;
 
     @IsNotEmpty()
+    @IsString()
     password : string;
 
     @IsString()
+    @IsNotEmpty()
     name : string;
 
     @IsString()
@@ -22,6 +28,9 @@ export class UserDTO {
 
     @IsString()
     roles : string;
+
+    @IsString()
+    avatar : string;
 }
 
 export class UserRO {
@@ -30,6 +39,10 @@ export class UserRO {
     username: string;
     name: string;
     email: string;
+    avatar : string;
     phone: string;
-    roles :string;
+    roles :string;    
+    followers: FollowerEntity[];
+    following: FollowerEntity[];
+    followPosts: PostRO[]
 }
